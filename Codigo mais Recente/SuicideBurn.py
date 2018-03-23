@@ -37,22 +37,25 @@ text.color = (1,1,1)
 text.size = 16
 
 ###
+refer = conn.space_center.active_vessel.orbit.body.reference_frame
+surAlt = conn.space_center.active_vessel.flight(refer).surface_altitude
 
 def main():
         
     #  DECLARACAO DE VARIAVEIS
 
-    # Importando arquivo pid.py
-    """import pid
-    from pid import computarPID
-    controle = computarPID # importa funcao computarPID"""
+    
+    
 
     ksc = conn.space_center
     foguete = ksc.active_vessel
 
     foguete.control.throttle = 0
     foguete.control.activate_next_stage() #inicia zerando throttle e ligando motores
-        
+
+                
+    
+      
     while True:
 
             # Atencao!
@@ -86,8 +89,12 @@ def main():
             velVertNave = foguete.flight(refer).vertical_speed
             massa = foguete.mass
             empuxoMax = foguete.max_thrust
-            piloto.engage()
-            piloto.target_pitch_and_heading(90, 90)
+
+            #foguete.control.sas = True
+            #foguete.control.sas_mode = foguete.control.sas_mode.retrograde
+            #piloto.engage()
+            #piloto.target_pitch_and_heading(90, 90)
+                        
             naveAtual.control.brakes = True
             forcaGravidade = foguete.orbit.body.surface_gravity
             TWRMax = empuxoMax / (massa * forcaGravidade)
@@ -117,14 +124,14 @@ def main():
 
                     
             global kp
-            kp = float(0.02) #4
+            kp = float(.02) #.02
             global ki
-            ki = float(.001)#.1
+            ki = float(.001)#.001
             global kd
-            kd = float(1) #5
+            kd = float(1) #1
 
             global amostraTempo
-            amostraTempo = 25 # tempo de amostragem
+            amostraTempo = 25 / 1000 # tempo de amostragem
 
             global saidaMin
             global saidaMax
@@ -184,27 +191,7 @@ def main():
                     
                     return(valorSaida)
                 
-            def LimiteSaida(Min, Max) :
-
-                global termoInt
-                global valorSaida
-                
-                if Min > Max:
-                    time.skeep(.00001)
-                        
-                saidaMin = Min
-                saidaMax = Max
-                
-                if termoInt > saidaMax:
-                        termoInt = saidaMax
-                elif termoInt < saidaMin:
-                        termoInt = saidaMin
-                if valorSaida > saidaMax:
-                        valorSaida = saidaMax
-                elif valorSaida < saidaMin:
-                        valorSaida = saidaMin
-
-
+            
             
             
             
@@ -222,23 +209,25 @@ def main():
             
             text.content = 'Correcao: %f' % computarPID() # mostra calculo na tela do jogo
             
-            if altitudeNave < 100:
-                    naveAtual.control.gear = True # altitude para trem de pouso
-            naveAtual.control.throttle = novaAcel
-            #time.sleep(0.05)
+            if altitudeNave < 200:
+                naveAtual.control.gear = True # altitude para trem de pouso
+
+            if altitudeNave > 200:
+                naveAtual.control.gear = False
+                
+            if altitudeNave < 5:
+                naveAtual.control.throttle = 0
+            else:
+                naveAtual.control.throttle = novaAcel
+            #time.sleep(0.1)
 
             # atualiza informacoes no arquivo pid.py para serem relidos pelo while loop
-            """pid.surAlt = surAlt
-            pid.distanciaDaQueima = distanciaDaQueima
-            pid.elevacaoTerreno = elevacaoTerreno
-            pid.TWRMax = TWRMax
-            pid.acelMax = acelMax
-            pid.forcaGravidade = forcaGravidade
-            pid.tempoDaQueima = tempoDaQueima
-            pid.computarPID
-            pid.agora = UT"""
+           
         
 
-
-main()
-
+if surAlt > 3:
+    main()
+else:
+    print("Foguete atualmente pousado")
+    print("Encerrando processo...")
+    text.content = 'Foguete Pousado'

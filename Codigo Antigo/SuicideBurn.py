@@ -43,9 +43,9 @@ def main():
     #  DECLARACAO DE VARIAVEIS
 
     # Importando arquivo pid.py
-    import pid
+    """import pid
     from pid import computarPID
-    controle = computarPID # importa funcao computarPID
+    controle = computarPID # importa funcao computarPID"""
 
     ksc = conn.space_center
     foguete = ksc.active_vessel
@@ -94,28 +94,141 @@ def main():
             acelMax = (TWRMax * forcaGravidade) - forcaGravidade
             tempoDaQueima = speed / acelMax
             distanciaDaQueima = speed * tempoDaQueima + 1/2 * acelMax * pow(tempoDaQueima, 2)
+            distanciaPouso = alturaPouso
 
-            # Imprimir informacoes
-            print "TWR           : %f" % pid.TWRMax
-            print "Dist. Queima  : %f" % pid.distanciaDaQueima
-            print "Altitude Voo  : %d" % pid.surAlt
-            print "Elev. Terreno : %d" % pid.elevacaoTerreno
-            print "Correcao      : %f" % controle() # esse valor que nao esta atualizando, e deveria atualizar
+           
+
+
+
+
+
+            global ultCalculo
+            ultCalculo = 0 # tempo do ultimo calculo
+            global valorEntrada
+            valorEntrada = float(surAlt)
+            global valorSaida
+            valorSaida = float()
+            global valorLimite
+            valorLimite = float(distanciaPouso + distanciaDaQueima) # variáveis de valores
+
+                    
+            global ultValorEntrada
+            ultValorEntrada = float() # variáveis de cálculo de erro
+
+                    
+            global kp
+            kp = float(0.02) #4
+            global ki
+            ki = float(.001)#.1
+            global kd
+            kd = float(1) #5
+
+            global amostraTempo
+            amostraTempo = 25 # tempo de amostragem
+
+            global saidaMin
+            global saidaMax
+            saidaMin = float(-1)
+            saidaMax = float(1) # limitar saída dos valores
+
+            #
+            global agora
+            global mudancaTempo
+            agora = ksc.ut # var busca tempo imediato
+            mudancaTempo = agora - ultCalculo # var compara tempo calculo
+
+            global termoInt
+            termoInt = float()
             
-            novaAcel = 1 / TWRMax + controle() # calculo de aceleracao
+
+            def computarPID() :
+                    global ultCalculo
+                    global ultValorEntrada
+                    global valorSaida
+                    global termoInt
+                    
+                            
+                    agora = ksc.ut # var busca tempo imediato
+                    mudancaTempo = agora - ultCalculo # var compara tempo calculo
+
+                            
+                    if mudancaTempo >= amostraTempo: # se a mudança for > q o tempo de amostra, o calculo é feito
+                            # var calculo valor saida
+                            erro = valorLimite - valorEntrada
+                            termoInt += ki * erro
+                            if termoInt > saidaMax:
+                                    termoInt = saidaMax
+                            elif termoInt < saidaMax:
+                                    termoInt = saidaMin
+                            dvalorEntrada = (valorEntrada - ultValorEntrada)
+                            # computando valor saida
+                            valorSaida = kp * erro + ki * termoInt - kd * dvalorEntrada
+                            if valorSaida > saidaMax:
+                                    valorSaida = saidaMax
+                            elif valorSaida < saidaMin:
+                                    valorSaida = saidaMin
+
+                            # relembra valores atuais pra prox
+
+                            ultValorEntrada = valorEntrada
+                            ultCalculo = agora
+
+                    if termoInt > saidaMax:
+                        termoInt = saidaMax
+                    elif termoInt < saidaMin:
+                        termoInt = saidaMin
+                    if valorSaida > saidaMax:
+                        valorSaida = saidaMax
+                    elif valorSaida < saidaMin:
+                        valorSaida = saidaMin
+                    
+                    return(valorSaida)
+                
+            def LimiteSaida(Min, Max) :
+
+                global termoInt
+                global valorSaida
+                
+                if Min > Max:
+                    time.skeep(.00001)
+                        
+                saidaMin = Min
+                saidaMax = Max
+                
+                if termoInt > saidaMax:
+                        termoInt = saidaMax
+                elif termoInt < saidaMin:
+                        termoInt = saidaMin
+                if valorSaida > saidaMax:
+                        valorSaida = saidaMax
+                elif valorSaida < saidaMin:
+                        valorSaida = saidaMin
+
+
+            
+            
+            
+            # Imprimir informacoes
+            print "TWR           : %f" % TWRMax
+            print "Dist. Queima  : %f" % distanciaDaQueima
+            print "Altitude Voo  : %d" % surAlt
+            print "Elev. Terreno : %d" % elevacaoTerreno
+            print "Correcao      : %f" % computarPID() # esse valor que nao esta atualizando, e deveria atualizar
+            
+            novaAcel = 1 / TWRMax + computarPID() # calculo de aceleracao
             
             print "Acc Calculada : %f" % novaAcel
             print "                  "
             
-            text.content = 'Correcao: %f' % controle() # mostra calculo na tela do jogo
+            text.content = 'Correcao: %f' % computarPID() # mostra calculo na tela do jogo
             
             if altitudeNave < 100:
                     naveAtual.control.gear = True # altitude para trem de pouso
             naveAtual.control.throttle = novaAcel
-            time.sleep(0.05)
+            #time.sleep(0.05)
 
             # atualiza informacoes no arquivo pid.py para serem relidos pelo while loop
-            pid.surAlt = surAlt
+            """pid.surAlt = surAlt
             pid.distanciaDaQueima = distanciaDaQueima
             pid.elevacaoTerreno = elevacaoTerreno
             pid.TWRMax = TWRMax
@@ -123,6 +236,7 @@ def main():
             pid.forcaGravidade = forcaGravidade
             pid.tempoDaQueima = tempoDaQueima
             pid.computarPID
+            pid.agora = UT"""
         
 
 
