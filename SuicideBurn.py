@@ -124,7 +124,7 @@ def main():
 
                     
             global kp
-            kp = float(.023) #.02
+            kp = float(.024) #.02
             global ki
             ki = float(.001)#.001
             global kd
@@ -209,13 +209,13 @@ def main():
             
             text.content = 'Correcao: %f' % computarPID() # mostra calculo na tela do jogo
             
-            if altitudeNave < 200:
+            if altitudeNave < 500:
                 naveAtual.control.gear = True # altitude para trem de pouso
 
-            if altitudeNave > 200:
+            if altitudeNave > 500:
                 naveAtual.control.gear = False
                 
-            if altitudeNave < 3:
+            if altitudeNave < 5:
                 naveAtual.control.throttle = 0
             else:
                 naveAtual.control.throttle = novaAcel
