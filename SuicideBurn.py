@@ -124,7 +124,7 @@ def main():
 
                     
             global kp
-            kp = float(.02) #.02
+            kp = float(.023) #.02
             global ki
             ki = float(.001)#.001
             global kd
@@ -215,13 +215,11 @@ def main():
             if altitudeNave > 200:
                 naveAtual.control.gear = False
                 
-            if altitudeNave < 5:
+            if altitudeNave < 3:
                 naveAtual.control.throttle = 0
             else:
                 naveAtual.control.throttle = novaAcel
-            #time.sleep(0.1)
-
-            # atualiza informacoes no arquivo pid.py para serem relidos pelo while loop
+            #time.sleep(.25)
            
         
 
