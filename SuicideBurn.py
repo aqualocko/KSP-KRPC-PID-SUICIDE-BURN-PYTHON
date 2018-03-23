@@ -111,7 +111,7 @@ def main():
         ultValorEntrada = float()  # variáveis de cálculo de erro
 
         global kp
-        kp = float(.021)  # .02
+        kp = float(.022)  # .023
         global ki
         ki = float(.001)  # .001
         global kd
@@ -189,19 +189,21 @@ def main():
 
         text.content = 'Correcao: %f' % computarPID()  # mostra calculo na tela do jogo
 
-        if altitudeNave < 200:
+        if surAlt < 200:
             naveAtual.control.gear = True  # altitude para trem de pouso
 
-        if altitudeNave > 200:
+        if surAlt > 200:
             naveAtual.control.gear = False
         if situacao() == pousado or situacao() == pousado_agua:
             naveAtual.control.throttle = 0
             pouso = True
+        elif speed <= 6:
+            naveAtual.control.throttle = .1
         else:
             naveAtual.control.throttle = novaAcel
         if speed <= 1:
             naveAtual.control.throttle = 0
-        time.sleep(0.15)
+        #time.sleep(0)
 
 
 if situacao() != pousado or situacao() != pousado_agua :
@@ -218,6 +220,6 @@ time.sleep(2)
 print('estabilizando')
 time.sleep(6)
 print('pouso terminado, desligando tudo, tchau!!')
-vessel.control.sas = False
+#vessel.control.sas = False
 vessel.control.rcs = False
-vessel.control.brakes = False
+#vessel.control.brakes = False
